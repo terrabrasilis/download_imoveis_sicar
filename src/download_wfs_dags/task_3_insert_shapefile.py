@@ -59,10 +59,8 @@ class InsertShapeFile(TaskBase):
                         gdf["geometry"] = gdf["geometry"].apply(
                             lambda geom: MultiPolygon([geom]) if geom.geom_type == "Polygon" else geom
                         )
-
-                        # converter datas
-                        gdf["dat_criaca"] = pd.to_datetime(gdf["dat_criaca"], errors="coerce")
-                        gdf["data_atual"] = pd.to_datetime(gdf["data_atual"], errors="coerce")
+                        
+                        print(gdf.columns)
 
                         # converter geometria para WKT
                         gdf["geometry"] = gdf.geometry.apply(lambda g: g.wkt if g else None)
@@ -82,7 +80,15 @@ class InsertShapeFile(TaskBase):
                             "tipo_imove",
                             "geometry"
                         ]
+                        
+                        for col in columns:
+                            if col not in gdf.columns:
+                                gdf[col] = None
 
+                        # converter datas
+                        gdf["dat_criaca"] = pd.to_datetime(gdf["dat_criaca"], errors="coerce")
+                        gdf["data_atualizacao"] = pd.to_datetime(gdf["data_atual"], errors="coerce")
+                        
                         gdf = gdf[columns]
 
                         # criar csv temporário
