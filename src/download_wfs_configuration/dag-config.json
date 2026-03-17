@@ -1,0 +1,6 @@
+{
+    "logger_level":"DEBUG",
+    "output_database": "DOWNLOAD_WFS_DB",
+    "required_tables": ["sicar_shapefile_downloads"],
+    "base_url": "https://geoserver.car.gov.br/geoserver/sicar/wfs"
+}

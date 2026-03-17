@@ -1,0 +1,9 @@
+.git/
+.vscode/
+docs/
+src/tasks/
+src/tools/
+src/utils/
+src/data/
+venv/
+src/files/

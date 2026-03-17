@@ -1,0 +1,86 @@
+CREATE TABLE public.state_execution_control (
+    id SERIAL PRIMARY KEY,
+    state_code VARCHAR(2) NOT NULL UNIQUE,
+    should_execute BOOLEAN NOT NULL DEFAULT TRUE,
+    last_executed_year INTEGER
+);
+
+INSERT INTO public.state_execution_control (state_code, should_execute, last_executed_year) VALUES
+('AC', TRUE, 2013),
+('AL', TRUE, 2013),
+('AP', TRUE, 2013),
+('AM', TRUE, 2013),
+('BA', TRUE, 2013),
+('CE', TRUE, 2013),
+('DF', TRUE, 2013),
+('ES', TRUE, 2013),
+('GO', TRUE, 2013),
+('MA', TRUE, 2013),
+('MT', TRUE, 2013),
+('MS', TRUE, 2013),
+('MG', TRUE, 2013),
+('PA', TRUE, 2013),
+('PB', TRUE, 2013),
+('PR', TRUE, 2013),
+('PE', TRUE, 2013),
+('PI', TRUE, 2013),
+('RJ', TRUE, 2013),
+('RN', TRUE, 2013),
+('RS', TRUE, 2013),
+('RO', TRUE, 2013),
+('RR', TRUE, 2013),
+('SC', TRUE, 2013),
+('SP', TRUE, 2013),
+('SE', TRUE, 2013),
+('TO', TRUE, 2013);
+
+CREATE EXTENSION postgis;
+
+
+-- Table: public.sicar_geometries
+
+-- DROP TABLE IF EXISTS public.sicar_geometries;
+
+CREATE TABLE IF NOT EXISTS public.sicar_geometries
+(
+    cod_imovel text COLLATE pg_catalog."default" NOT NULL,
+    status_imo text COLLATE pg_catalog."default",
+    dat_criaca timestamp without time zone,
+    data_atual timestamp without time zone,
+    area double precision,
+    condicao text COLLATE pg_catalog."default",
+    uf text COLLATE pg_catalog."default",
+    municipio text COLLATE pg_catalog."default",
+    cod_munici integer,
+    m_fiscal double precision,
+    tipo_imove text COLLATE pg_catalog."default",
+    geometry geometry(Polygon,4674),
+    CONSTRAINT sicar_geometries_pkey PRIMARY KEY (cod_imovel)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.sicar_geometries
+    OWNER to admin;
+-- Index: idx_sicar_geometries_geometry
+
+-- DROP INDEX IF EXISTS public.idx_sicar_geometries_geometry;
+
+CREATE INDEX IF NOT EXISTS idx_sicar_geometries_geometry
+    ON public.sicar_geometries USING gist
+    (geometry)
+    TABLESPACE pg_default;
+
+
+ALTER TABLE sicar_geometries
+ALTER COLUMN geometry
+TYPE geometry(MultiPolygon, 4674)
+USING ST_Multi(geometry);
+
+----
+
+CREATE TABLE sicar_geometries_duplicates
+(LIKE sicar_geometries INCLUDING ALL);
+
+ALTER TABLE sicar_geometries_duplicates
+DROP CONSTRAINT sicar_geometries_duplicates_pkey;
