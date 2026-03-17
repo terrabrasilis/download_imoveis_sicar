@@ -253,11 +253,10 @@ class WFSDownload(TaskBase):
                         self.logger.info(f"Saved: {full_file_name}")
                         
                 self.update_state_execution_control(uf, self.year, total_records)
+                self.logger.info(f"Total number of pages downloaded for {uf}: {total_pages}")
                 
             self.dag_config.database.commit()
             self.disable_uf_execution(uf)
-
-            self.logger.info(f"Total number of pages downloaded for {uf}: {total_pages}")
     
     def prepare_task(self, logical_date):
         self.dag_config.dag_config()
