@@ -98,7 +98,7 @@ class InsertShapeFile(TaskBase):
                             tmp.name,
                             index=False,
                             sep=",",
-                            na_rep="\\N"  # PostgreSQL NULL
+                            na_rep=""
                         )
 
                         self.logger.info(f"Temporary CSV created: {tmp.name}")
