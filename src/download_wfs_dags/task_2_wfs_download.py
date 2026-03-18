@@ -130,11 +130,12 @@ class WFSDownload(TaskBase):
         except Exception as e:
             self.logger.error(f"Error updating state_execution_control for UF {uf} and year {year}: {e}")
 
-    def get_total_records(self, base_url, type_name, filters):
-        
-        import requests
+    def get_total_records(self, session, base_url, type_name, filters):
+
         import xml.etree.ElementTree as ET
-        
+        import time
+        import requests
+
         params = {
             'service': 'WFS',
             'version': '2.0.0',
@@ -144,15 +145,29 @@ class WFSDownload(TaskBase):
             'CQL_FILTER': filters
         }
 
-        session = requests.Session()
-        response = session.get(base_url, params=params, timeout=120)
+        for attempt in range(5):
+            try:
+                response = session.get(base_url, params=params, timeout=180)
+                break
+            except requests.exceptions.ReadTimeout:
+                self.logger.warning(
+                    f"Timeout getting total records for {type_name}. Retry {attempt+1}/5"
+                )
+                time.sleep(10)
+        else:
+            self.logger.error(f"Failed to get total records for {type_name}")
+            return 0
 
         if response.status_code != 200:
             self.logger.error(f"Error fetching total for {type_name}: {response.text}")
             return 0
 
-        root = ET.fromstring(response.content)
-        total = int(root.attrib.get('numberMatched', 0))
+        try:
+            root = ET.fromstring(response.content)
+            total = int(root.attrib.get('numberMatched', 0))
+        except Exception as e:
+            self.logger.error(f"Error parsing XML for {type_name}: {e}")
+            return 0
 
         return total
     
@@ -200,10 +215,11 @@ class WFSDownload(TaskBase):
                 
                 print(f"Fetching data for UF: {uf}, Year: {self.year}, Filters: {filter}")
 
-                total_records = self.get_total_records(base_url, type_name, filter)
-
+                total_records = self.get_total_records(session, base_url, type_name, filter)
+                
                 if total_records == 0:
                     self.logger.info(f"No records found for {uf}")
+                    self.update_state_execution_control(uf, self.year, total_records)
                     continue
 
                 self.logger.info(f"Total records found: {total_records}")
