@@ -180,7 +180,9 @@ class WFSDownload(TaskBase):
             FROM public.sicar_shapefile_downloads
             WHERE directory_path = '{folder_path}' AND file_name = '{file_name}';
         """
+        print(query)
         result = self.dag_config.database.fetchone(query)
+        print(result)
         return result > 0 if result else False
     
     def inset_download_record(self, uf, year, folder_path, file_name):
