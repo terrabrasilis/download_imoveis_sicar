@@ -34,11 +34,12 @@ class WFSDownload(TaskBase):
         self.logger.info(f"Runs today: {len(runs_today)}")
         
         self.is_first_execution = len(runs_today) == 1
+        self.is_first_execution = True
         return self.is_first_execution
         
     def get_uf_list(self):
         
-        if  self.is_first_execution or self.dag_config.execute_dag:
+        if  self.is_first_execution:
             self.logger.info("First execution of the day. Processing all UFs.")
             self.uf_list = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"]
             return self.uf_list
