@@ -206,7 +206,7 @@ class WFSDownload(TaskBase):
 
             self.filters = []
             if self.year == self.current_year:
-                self.filters = [f"dat_criacao >= '{self.year}-{self.today.month:02d}-01T00:00:00' AND dat_criacao <= '{self.year}-{self.today.month:02d}-31T23:59:59'", f"data_atualizacao >= '{self.today}T00:00:00' AND data_atualizacao <= '{self.today}T23:59:59'"]
+                self.filters = [f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'", f"data_atualizacao >= '{self.today}T00:00:00' AND data_atualizacao <= '{self.today}T23:59:59'"]
             else:
                 self.filters = [f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"]
 
@@ -215,7 +215,7 @@ class WFSDownload(TaskBase):
                 base_url = self.dag_config.base_url
                 type_name = f'sicar:sicar_imoveis_{uf.lower()}'
                 
-                print(f"Fetching data for UF: {uf}, Year: {self.year}, Filters: {filter}")
+                self.logger.info(f"Fetching data for UF: {uf}, Year: {self.year}, Filters: {filter}")
 
                 total_records = self.get_total_records(session, base_url, type_name, filter)
                 
