@@ -34,7 +34,6 @@ class WFSDownload(TaskBase):
         self.logger.info(f"Runs today: {len(runs_today)}")
         
         self.is_first_execution = len(runs_today) == 1
-        self.is_first_execution = True
         return self.is_first_execution
         
     def get_uf_list(self):
@@ -79,7 +78,7 @@ class WFSDownload(TaskBase):
         if not result:
             return False
         
-        if result < total_records:
+        if result != total_records:
 
             delete_query = f"""
                 DELETE FROM public.sicar_shapefile_downloads
@@ -176,13 +175,11 @@ class WFSDownload(TaskBase):
     
     def verify_file_exists(self, folder_path, file_name):
         query = f"""
-            SELECT COUNT(*) 
+            SELECT 1
             FROM public.sicar_shapefile_downloads
-            WHERE directory_path = '{folder_path}' AND file_name = '{file_name}';
+            WHERE directory_path = '{folder_path}' AND file_name = '{file_name}' LIMIT 1;
         """
-        print(query)
         result = self.dag_config.database.fetchone(query)
-        print(result)
         return result > 0 if result else False
     
     def inset_download_record(self, uf, year, folder_path, file_name):
