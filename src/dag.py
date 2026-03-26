@@ -13,7 +13,7 @@ from download_imoveis_sicar.task_2_wfs_download import task_2_wfs_download
 from download_imoveis_sicar.task_3_insert_shapefile import task_3_insert_shape_file
 from download_imoveis_sicar.task_4_check_if_trigger import task_4_check_if_trigger
 
-requirements = ['geopandas', 'geoalchemy2']
+requirements = ['geopandas', 'geoalchemy2', 'shapely', 'pandas', 'fiona', 'pyproj']
     
 venv_path = f"/opt/airflow/venv/inpe/download_wfs/venv"
 

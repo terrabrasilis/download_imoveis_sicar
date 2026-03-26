@@ -27,6 +27,13 @@ class InsertShapeFile(TaskBase):
         self.dag_config.database.execute(query)
         self.dag_config.database.commit()
         self.logger.info(f"Updated imported status for folder: {folder}")  
+        
+    def fix_axis_order(self, geom):
+        from shapely.ops import transform # type: ignore
+
+        if geom is None:
+            return None
+        return transform(lambda x, y, z=None: (y, x), geom)
 
     def insert_shapefile(self):
         import pandas as pd  # type: ignore
@@ -51,6 +58,9 @@ class InsertShapeFile(TaskBase):
 
                         # remover geometrias nulas
                         gdf = gdf[gdf.geometry.notnull()]
+                        
+                        # corrigir axis order
+                        gdf["geometry"] = gdf["geometry"].apply(self.fix_axis_order)
 
                         # remover duplicados dentro do shapefile
                         gdf = gdf.drop_duplicates(subset="cod_imovel")

@@ -139,12 +139,12 @@ class WFSDownload(TaskBase):
         import requests
 
         params = {
-            'service': 'WFS',
-            'version': '1.0.0',
-            'request': 'GetFeature',
-            'typeNames': type_name,
-            'resultType': 'hits',
-            'CQL_FILTER': filters
+            "service": "WFS",
+            "version": "2.0.0",
+            "request": "GetFeature",
+            "typeNames": type_name,
+            "CQL_FILTER": filters,
+            "srsName": "urn:ogc:def:crs:EPSG::4326"
         }
 
         for attempt in range(5):
