@@ -140,7 +140,7 @@ class WFSDownload(TaskBase):
 
         params = {
             'service': 'WFS',
-            'version': '2.0.0',
+            'version': '1.0.0',
             'request': 'GetFeature',
             'typeNames': type_name,
             'resultType': 'hits',
