@@ -64,13 +64,15 @@ class WFSDownload(TaskBase):
             except Exception as e:
                 self.logger.error(f"Error disabling execution for UF {uf}: {e}")
                 
-    def validate_and_cleanup_shapefile(self, uf, directory_path, total_records):
+    def validate_and_cleanup_shapefile(self, uf, directory_path, total_records, filter_type):
         
         if str(self.current_year) != str(self.year):
             return True
+        
+        fild_to_check = "shapefile_count" if filter_type == "insert" else "updated_shapefile_count"
 
         query = f"""
-            SELECT shapefile_count 
+            SELECT {fild_to_check}
             FROM public.state_execution_control 
             WHERE state_code = '{uf}'
         """
@@ -119,12 +121,14 @@ class WFSDownload(TaskBase):
 
         return self.year
     
-    def update_state_execution_control(self, uf, year, total_records):
+    def update_state_execution_control(self, uf, year, total_records, filter_type):
         self.logger.info(f"Updating state_execution_control for UF {uf} and year {year} with total records {total_records}")
         try:
+            
+            fild_to_update = "shapefile_count" if filter_type == "insert" else "updated_shapefile_count"
             query = f"""
                 UPDATE public.state_execution_control
-                SET last_executed_year = {year}, shapefile_count = {total_records}
+                SET last_executed_year = {year}, {fild_to_update} = {total_records}
                 WHERE state_code = '{uf}';
             """
             self.dag_config.database.execute(query)
@@ -206,19 +210,35 @@ class WFSDownload(TaskBase):
 
             self.filters = []
             if self.year == self.current_year:
-                self.filters = [f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'", f"data_atualizacao >= '{self.today}T00:00:00' AND data_atualizacao <= '{self.today}T23:59:59'"]
+                self.filters = [
+                    {
+                        "type": "insert",
+                        "filter":f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"
+                    },
+                    {
+                        "type": "update",
+                        "filter": f"data_atualizacao >= '{self.today}T00:00:00' AND data_atualizacao <= '{self.today}T23:59:59'"
+                    }
+                ]
             else:
-                self.filters = [f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"]
+                self.filters = [
+                    {
+                        "type": "insert",
+                        "filter": f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"
+                    }
+                ]
 
             for filter in self.filters:
             
                 base_url = self.dag_config.base_url
                 type_name = f'sicar:sicar_imoveis_{uf.lower()}'
                 
-                self.logger.info(f"Fetching data for UF: {uf}, Year: {self.year}, Filters: {filter}")
+                filter_type = filter["type"]
+                filter_query = filter["query"]
+                
+                self.logger.info(f"Fetching data for UF: {uf}, Year: {self.year}, Type: {filter_type}, Filters: {filter_query}")
 
-                total_records = self.get_total_records(session, base_url, type_name, filter)
-                print(total_records)
+                total_records = self.get_total_records(session, base_url, type_name, filter_query)
                 
                 if total_records == 0:
                     self.logger.info(f"No records found for {uf}")
@@ -241,7 +261,7 @@ class WFSDownload(TaskBase):
                         'count': self.qtd_features,
                         'startIndex': start_index,
                         'outputFormat': 'SHAPE-ZIP',
-                        'CQL_FILTER': filter
+                        'CQL_FILTER': filter_query
                     }                    
                     
                     for attempt in range(5):
@@ -273,7 +293,8 @@ class WFSDownload(TaskBase):
                         is_valid_shapefile = self.validate_and_cleanup_shapefile(
                             uf,
                             folder_path,
-                            total_records
+                            total_records,
+                            filter_type
                         )
                         download_file = not is_valid_shapefile
                         
@@ -283,7 +304,7 @@ class WFSDownload(TaskBase):
                         self.inset_download_record(uf, self.year, folder_path, file_name)
                         self.logger.info(f"Saved: {full_file_name}")
                     
-                    self.update_state_execution_control(uf, self.year, total_records)
+                    self.update_state_execution_control(uf, self.year, total_records, filter_type)
                 self.logger.info(f"Total number of pages downloaded for {uf}: {total_pages}")
                 
             self.dag_config.database.commit()
