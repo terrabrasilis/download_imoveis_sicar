@@ -76,7 +76,7 @@ class WFSDownload(TaskBase):
         """
 
         result = self.dag_config.database.fetchone(query)
-        if not result:
+        if result is None:
             return False
         
         if str(result) != str(total_records):
