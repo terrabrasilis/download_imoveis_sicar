@@ -213,18 +213,18 @@ class WFSDownload(TaskBase):
                 self.filters = [
                     {
                         "type": "insert",
-                        "filter":f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"
+                        "query":f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"
                     },
                     {
                         "type": "update",
-                        "filter": f"data_atualizacao >= '{self.today}T00:00:00' AND data_atualizacao <= '{self.today}T23:59:59'"
+                        "query": f"data_atualizacao >= '{self.today}T00:00:00' AND data_atualizacao <= '{self.today}T23:59:59'"
                     }
                 ]
             else:
                 self.filters = [
                     {
                         "type": "insert",
-                        "filter": f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"
+                        "query": f"dat_criacao >= '{self.year}-01-01T00:00:00' AND dat_criacao <= '{self.year}-12-31T23:59:59'"
                     }
                 ]
 
