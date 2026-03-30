@@ -272,6 +272,7 @@ class WFSDownload(TaskBase):
                     
                     download_file = True
                     file_exists = self.verify_file_exists(folder_path, file_name)
+                    print('file_exists', file_exists)
                     
                     if file_exists:
                         self.logger.info(f"File already exists in database: {folder_path}")
