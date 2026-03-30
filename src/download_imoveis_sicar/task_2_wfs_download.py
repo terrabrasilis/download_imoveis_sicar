@@ -64,7 +64,7 @@ class WFSDownload(TaskBase):
             except Exception as e:
                 self.logger.error(f"Error disabling execution for UF {uf}: {e}")
                 
-    def validate_and_cleanup_shapefile(self, uf, directory_path, total_records):
+    def validate_and_cleanup_shapefile(self, uf, directory_path, total_records, file_name):
 
         if self.current_year != self.year:
             return True
@@ -79,13 +79,16 @@ class WFSDownload(TaskBase):
         if not result:
             return False
         
+        print(result, total_records)
+        
         if result != total_records:
-
+            print('entrou')
             delete_query = f"""
                 DELETE FROM public.sicar_shapefile_downloads
                 WHERE state_code = '{uf}'
                 AND year = '{self.year}'
                 AND directory_path = '{directory_path}'
+                AND file_name = '{file_name}'
             """
 
             self.dag_config.database.execute(delete_query)
@@ -273,7 +276,8 @@ class WFSDownload(TaskBase):
                         is_valid_shapefile = self.validate_and_cleanup_shapefile(
                             uf,
                             folder_path,
-                            total_records
+                            total_records,
+                            file_name
                         )
                         download_file = not is_valid_shapefile
                         
