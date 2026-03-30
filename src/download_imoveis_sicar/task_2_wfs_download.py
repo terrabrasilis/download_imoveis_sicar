@@ -68,7 +68,7 @@ class WFSDownload(TaskBase):
 
         print(self.current_year, self.year)
         
-        if self.current_year != self.year:
+        if str(self.current_year) != str(self.year):
             return True
 
         query = f"""
@@ -83,7 +83,7 @@ class WFSDownload(TaskBase):
         
         print(result, total_records)
         
-        if result != total_records:
+        if str(result) != str(total_records):
             print('entrou')
             delete_query = f"""
                 DELETE FROM public.sicar_shapefile_downloads
