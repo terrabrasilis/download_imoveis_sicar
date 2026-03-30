@@ -67,6 +67,7 @@ class WFSDownload(TaskBase):
     def validate_and_cleanup_shapefile(self, uf, directory_path, total_records, file_name):
 
         print(self.current_year, self.year)
+        print(str(self.current_year) != str(self.year))
         
         if str(self.current_year) != str(self.year):
             return True
