@@ -1,6 +1,10 @@
 {
     "logger_level":"DEBUG",
     "output_database": "DOWNLOAD_WFS_DB",
-    "required_tables": ["sicar_shapefile_downloads"],
-    "base_url": "https://geoserver.car.gov.br/geoserver/sicar/wfs"
+    "required_tables": ["sicar_shapefile_downloads", "sicar_year_control"],
+    "base_url": "https://geoserver.car.gov.br/geoserver/sicar/wfs",
+    "first_year": 2013,
+    "check_retroactive_data": true,
+    "retroactive_years_to_check": 0,
+    "retroactive_tolerance": 5
 }

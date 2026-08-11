@@ -38,7 +38,7 @@ with DAG(f'download_imoveis_sicar',
         requirements=requirements,
         python_callable=task_2_wfs_download,
         system_site_packages=True,
-        op_kwargs={"project_dir": PROJECT_DIR, "logical_date": "{{ logical_date }}"},
+        op_kwargs={"project_dir": PROJECT_DIR, "dag_run_conf": "{{ dag_run.conf }}"},
         venv_cache_path=venv_path
     )
     

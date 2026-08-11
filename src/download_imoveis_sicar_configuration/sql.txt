@@ -84,3 +84,16 @@ CREATE TABLE sicar_geometries_duplicates
 
 ALTER TABLE sicar_geometries_duplicates
 DROP CONSTRAINT sicar_geometries_duplicates_pkey;
+
+----
+
+-- Per-year SICAR count control used to detect retroactive data.
+-- shapefile_count = number of records SICAR returns for that year's
+-- dat_criacao filter at the last download (exact, no timezone bias).
+CREATE TABLE IF NOT EXISTS public.sicar_year_control (
+    state_code VARCHAR(2) NOT NULL,
+    year INTEGER NOT NULL,
+    shapefile_count INTEGER,
+    updated_at TIMESTAMP DEFAULT now(),
+    CONSTRAINT sicar_year_control_pkey PRIMARY KEY (state_code, year)
+);

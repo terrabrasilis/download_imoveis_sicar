@@ -11,6 +11,9 @@ class DAG_Configuration:
     def __init__(self):
         self.conf_path = Path(__file__).resolve().parent.parent / "download_imoveis_sicar_configuration" / "dag-config.json"
         self.dag_config_json = self.conn_id = self.data_source = self.server = self.base_url = self.database = self.engine = self.utils = self.required_tables = self.output_dir = None
+        self.first_year = 2013
+        self.retroactive_years_to_check = 0
+        self.retroactive_tolerance = 5
         self.files_to_analyze = []
         
     def dag_config(self):
@@ -36,6 +39,12 @@ class DAG_Configuration:
         """ Required Tables """
         self.required_tables = self.check_simple_dag_config("required_tables")
 
+        """ Retroactive data check config """
+        self.first_year = self.get_dag_config("first_year", 2013)
+        self.check_retroactive_data = self.get_dag_config("check_retroactive_data", True)
+        self.retroactive_years_to_check = self.get_dag_config("retroactive_years_to_check", 0)
+        self.retroactive_tolerance = self.get_dag_config("retroactive_tolerance", 5)
+
 
     def load_dag_config(self):
         if not self.conf_path.exists():
@@ -51,3 +60,8 @@ class DAG_Configuration:
             return value
         else:
             raise Exception(f"Missing {variable} config. (./download_imoveis_sicar_configuration/dag-config.json)")
+
+    def get_dag_config(self, variable, default=None):
+        if self.dag_config_json and self.dag_config_json.get(variable) is not None:
+            return self.dag_config_json.get(variable)
+        return default

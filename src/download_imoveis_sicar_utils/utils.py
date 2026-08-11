@@ -43,14 +43,20 @@ class Utils:
                     
     def delete_files(self, folders: list, type):
         import os
+
+        extensions = {
+            "zip": [".zip"],
+            "shapefile": [".shp", ".shx", ".dbf", ".prj", ".cst"]
+        }
+
         for folder in folders:
+            if not os.path.isdir(folder):
+                print(f"Pasta não encontrada: {folder}")
+                continue
+
             for file in os.listdir(folder):
-                if type == "zip":
+                if any(file.endswith(ext) for ext in extensions.get(type, [])):
                     path = os.path.join(folder, file)
+
                     os.remove(path)
                     print(f"{file} deletado")
-                elif type == "shapefile":
-                    if file.endswith(".shp") or file.endswith(".shx") or file.endswith(".dbf") or file.endswith(".prj") or file.endswith(".cst"):
-                        path = os.path.join(folder, file)
-                        os.remove(path)
-                        print(f"{file} deletado")
