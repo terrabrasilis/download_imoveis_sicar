@@ -23,6 +23,11 @@ class Utils:
                     zip_name = os.path.splitext(file)[0]
                     prefix = zip_name.replace("sicar_", "")
 
+                    if not zipfile.is_zipfile(zip_path):
+                        size = os.path.getsize(zip_path)
+                        print(f"Zip invalido ignorado: {zip_path} ({size} bytes)")
+                        continue
+
                     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
                         for member in zip_ref.namelist():
 
